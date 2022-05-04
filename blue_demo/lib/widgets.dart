@@ -1,25 +1,29 @@
-// Copyright 2017, Paul DeMarco.
-// All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
 
+import 'package:blue_demo/utils/helper.dart';
+import 'package:blue_demo/models/BlueModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ScanResultTile extends StatelessWidget {
-  const ScanResultTile({Key? key, required this.result, this.onTap})
+  const ScanResultTile({Key? key, required this.result, this.onTap, this.edit, this.remove, required this.deviceName})
       : super(key: key);
 
   final ScanResult result;
   final VoidCallback? onTap;
+  final String deviceName;
+  final VoidCallback? edit;
+  final VoidCallback? remove;
+
 
   Widget _buildTitle(BuildContext context) {
-    if (result.device.name.isNotEmpty) {
+    if (deviceName.isNotEmpty) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            result.device.name,
+            deviceName,
             overflow: TextOverflow.ellipsis,
           ),
           Text(
@@ -88,17 +92,35 @@ class ScanResultTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+
+
     return ExpansionTile(
-      title: _buildTitle(context),
-      leading: Text(result.rssi.toString()),
-      trailing: ElevatedButton(
-        child: const Text('CONNECT'),
-        style: ElevatedButton.styleFrom(
-          primary: Colors.blue,
-          onPrimary: Colors.white,
+      title: SizedBox(child: _buildTitle(context)),
+      // leading: Text(result.rssi.toString()),
+      trailing: SizedBox(
+        width: size.width / 2.5,
+        child: Row(
+          children: [
+            IconButton(
+                onPressed: () {
+                  if(result.advertisementData.connectable) {
+                  onTap!();
+                  } else {
+                    Fluttertoast.showToast(msg: "Device is not Connectable");
+                  }
+                },
+                icon: const Icon(Icons.bluetooth)),
+            IconButton(
+              onPressed: edit,
+                // onPressed: (result.advertisementData.connectable) ? edit : null,
+                icon: const Icon(Icons.edit)),
+            IconButton(
+              onPressed: remove,
+                // onPressed: (result.advertisementData.connectable) ? remove : null,
+                icon: const Icon(Icons.delete)),
+          ],
         ),
-        onPressed: (result.advertisementData.connectable) ? onTap : null,
-        // onPressed: onTap,
       ),
       children: <Widget>[
         _buildAdvRow(
@@ -148,7 +170,7 @@ class ServiceTile extends StatelessWidget {
       return ListTile(
         title: const Text('Service'),
         subtitle:
-        Text('0x${service.uuid.toString().toUpperCase().substring(4, 8)}'),
+            Text('0x${service.uuid.toString().toUpperCase().substring(4, 8)}'),
       );
     }
   }
@@ -163,11 +185,11 @@ class CharacteristicTile extends StatelessWidget {
 
   const CharacteristicTile(
       {Key? key,
-        required this.characteristic,
-        required this.descriptorTiles,
-        this.onReadPressed,
-        this.onWritePressed,
-        this.onNotificationPressed})
+      required this.characteristic,
+      required this.descriptorTiles,
+      this.onReadPressed,
+      this.onWritePressed,
+      this.onNotificationPressed})
       : super(key: key);
 
   @override
@@ -232,9 +254,9 @@ class DescriptorTile extends StatelessWidget {
 
   const DescriptorTile(
       {Key? key,
-        required this.descriptor,
-        this.onReadPressed,
-        this.onWritePressed})
+      required this.descriptor,
+      this.onReadPressed,
+      this.onWritePressed})
       : super(key: key);
 
   @override
