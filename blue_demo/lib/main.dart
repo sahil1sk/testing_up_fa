@@ -83,7 +83,9 @@ class FindDevicesScreen extends StatefulWidget {
 
 class _FindDevicesScreenState extends State<FindDevicesScreen> {
   List<BlueModel> blueList = [];
+  List data = [];
   bool isPairedDevices = false;
+  bool includeAPIDATA = true;
   TextEditingController changeNameController = TextEditingController();
 
   ButtonStyle bs() => ElevatedButton.styleFrom(
@@ -97,6 +99,8 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
     //Setting blue list from local data
     Future.delayed(const Duration(microseconds: 1), () async {
       blueList = await getBlueList();
+      data = await loadData();
+      includeAPIDATA = await getAPIResponseBool();
       setState(() {});
     });
     super.initState();
@@ -161,7 +165,9 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
                       return Column(
                         children: snapshot.data!
                             .map((d) {
-                          bool check = blueList.any((e) => e.id == d.id.id);
+                              // Checking if the object is available in list if not available then add this into list
+                              // and then also set into local DB
+                              bool check = blueList.any((e) => e.id == d.id.id);
                           BlueModel model = BlueModel(name: d.name, id: d.id.id, isRemoved: false);
                           if(check) {
                             model = blueList.where((e) => e.id == d.id.id).single;
@@ -170,7 +176,7 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
                             blueList.add(model);
                           }
 
-                          return model.isRemoved! ? Container() :  ListTile(
+                          Widget widget =  model.isRemoved! ? Container() :  ListTile(
                                 title: Text(model.name!),
                                 subtitle: Text(d.id.toString()),
                                 trailing: StreamBuilder<BluetoothDeviceState>(
@@ -212,6 +218,14 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
                                   },
                                 ),
                               );
+
+
+                              if (includeAPIDATA) {
+                                // Checking if the element is removed now no need to show that element
+                                return data.contains(model.id) ? widget : Container();
+                              } else {
+                                return widget;
+                              }
                         })
                             .toList(),
                       );
@@ -229,6 +243,8 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
                         return Column(
                           children: snapshot.data!.map(
                             (r)  {
+                              // Checking if the object is available in list if not available then add this into list
+                              // and then also set into local DB
                               bool check = blueList.any((e) => e.id == r.device.id.id);
                               BlueModel model = BlueModel(name: r.device.name, id: r.device.id.id, isRemoved: false);
                               if(check) {
@@ -237,9 +253,7 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
                                 setBlueModelData(model);
                                 blueList.add(model);
                               }
-
-                              // Checking if the element is removed now no need to show that element
-                              return model.isRemoved! ? Container() :  ScanResultTile(
+                              Widget widget = model.isRemoved! ? Container() :  ScanResultTile(
                                 deviceName: model.name!,
                                 result: r,
                                 edit: () async {
@@ -264,6 +278,15 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
                                   );
                                 },
                               );
+
+                              if (includeAPIDATA) {
+                                // Checking if the element is removed now no need to show that element
+                                return data.contains(model.id) ? widget : Container();
+                              } else {
+                                return widget;
+                              }
+
+
                             },
                           ).toList(),
                         );
@@ -351,6 +374,19 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
                       setState(() {});
                       Fluttertoast.showToast(
                           msg: "ALL DEVICES VISIBLE");
+                    },
+                  ),
+                  const SizedBox(height: 15),
+                  ElevatedButton(
+                    child: Text(includeAPIDATA ? "SHOW ALL ID's" : "SHOW API ID's ONLY" ),
+                    style: bs(),
+                    onPressed: () async {
+                      await setAPIBool();
+                      setState(() {
+                        includeAPIDATA = !includeAPIDATA;
+                      });
+                      Fluttertoast.showToast(
+                          msg: includeAPIDATA ? "AVAILABLE API ID's ONLY" : "AVAILABLE ALL ID's");
                     },
                   ),
                   const SizedBox(height: 25),

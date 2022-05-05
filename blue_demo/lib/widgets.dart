@@ -114,11 +114,11 @@ class ScanResultTile extends StatelessWidget {
             IconButton(
               onPressed: edit,
                 // onPressed: (result.advertisementData.connectable) ? edit : null,
-                icon: const Icon(Icons.edit)),
+                icon: const Icon(Icons.edit, color: Colors.blue)),
             IconButton(
               onPressed: remove,
                 // onPressed: (result.advertisementData.connectable) ? remove : null,
-                icon: const Icon(Icons.delete)),
+                icon: const Icon(Icons.delete, color: Colors.red)),
           ],
         ),
       ),

@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:http/http.dart' as http;
 import 'package:blue_demo/models/BlueModel.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const blueKey = "blueKey";
+const showAPIKey = "showAPIKey";
 
 Future<SharedPreferences> getSharedInstance() async {
   return await SharedPreferences.getInstance();
@@ -28,11 +32,7 @@ Future<List<BlueModel>> getBlueList() async {
 // and then if we don't have then create new list and save it.
 Future<void> setBlueModelData(BlueModel model) async {
   final data = jsonDecode(await getString());
-  print("get list");
-  print(data);
   data.add(model.toJson());
-  print("setting data");
-  print(data);
   await setString(jsonEncode(data));
 }
 
@@ -50,8 +50,6 @@ Future<void> addFirstIfNotAvailable(BlueModel model) async {
 // Means we are removing the element from the list to not show them
 Future<void> setIsRemoved(String id) async {
   List<BlueModel> list = blueModelFromJson(await getString());
-  print("list is here");
-  print(list);
   int index = list.indexWhere((e) => e.id == id);
   list[index].isRemoved = true;
   await setString(blueModelToJson(list));
@@ -72,3 +70,28 @@ Future<void> setAllDevicesVisible() async {
   setString(blueModelToJson([]));
 }
 
+// GET LIST OF ID's WHICH YOU WANT TO SHOW ONLY
+Future<List> loadData() async {
+  String errMsg = "Error is: ";
+  try {
+    var response = await http.get(Uri.parse("http://10.0.2.2:3000/data"));
+    return jsonDecode(response.body);
+  } on TimeoutException catch (e) {
+    errMsg += e.toString();
+  } catch (e) {
+    errMsg += e.toString();
+  }
+  Fluttertoast.showToast(msg: errMsg, toastLength: Toast.LENGTH_LONG);
+  return [];
+}
+
+Future<bool> getAPIResponseBool() async {
+  final prefs = await getSharedInstance();
+  return prefs.getBool(showAPIKey) ?? true;
+}
+
+Future<void> setAPIBool() async {
+  final prefs = await getSharedInstance();
+  final data = await getAPIResponseBool();
+  await prefs.setBool(showAPIKey, !data);
+}
