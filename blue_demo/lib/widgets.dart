@@ -1,4 +1,3 @@
-
 import 'package:blue_demo/utils/helper.dart';
 import 'package:blue_demo/models/BlueModel.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +5,13 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ScanResultTile extends StatelessWidget {
-  const ScanResultTile({Key? key, required this.result, this.onTap, this.edit, this.remove, required this.deviceName})
+  const ScanResultTile(
+      {Key? key,
+      required this.result,
+      this.onTap,
+      this.edit,
+      this.remove,
+      required this.deviceName})
       : super(key: key);
 
   final ScanResult result;
@@ -14,7 +19,6 @@ class ScanResultTile extends StatelessWidget {
   final String deviceName;
   final VoidCallback? edit;
   final VoidCallback? remove;
-
 
   Widget _buildTitle(BuildContext context) {
     if (deviceName.isNotEmpty) {
@@ -26,10 +30,10 @@ class ScanResultTile extends StatelessWidget {
             deviceName,
             overflow: TextOverflow.ellipsis,
           ),
-          Text(
-            result.device.id.toString(),
-            style: Theme.of(context).textTheme.caption,
-          )
+          // Text(
+          //   result.device.id.toString(),
+          //   style: Theme.of(context).textTheme.caption,
+          // )
         ],
       );
     } else {
@@ -94,7 +98,6 @@ class ScanResultTile extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
-
     return ExpansionTile(
       title: SizedBox(child: _buildTitle(context)),
       // leading: Text(result.rssi.toString()),
@@ -104,19 +107,19 @@ class ScanResultTile extends StatelessWidget {
           children: [
             IconButton(
                 onPressed: () {
-                  if(result.advertisementData.connectable) {
-                  onTap!();
+                  if (result.advertisementData.connectable) {
+                    onTap!();
                   } else {
                     Fluttertoast.showToast(msg: "Device is not Connectable");
                   }
                 },
                 icon: const Icon(Icons.bluetooth)),
             IconButton(
-              onPressed: edit,
+                onPressed: edit,
                 // onPressed: (result.advertisementData.connectable) ? edit : null,
                 icon: const Icon(Icons.edit, color: Colors.blue)),
             IconButton(
-              onPressed: remove,
+                onPressed: remove,
                 // onPressed: (result.advertisementData.connectable) ? remove : null,
                 icon: const Icon(Icons.delete, color: Colors.red)),
           ],

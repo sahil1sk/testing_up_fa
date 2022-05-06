@@ -110,23 +110,29 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
     changeNameController.text = name;
     AlertDialog alert = AlertDialog(
       title: const Text("Edit Name"),
-      content: customTextField(controller: changeNameController, size: MediaQuery.of(context).size, onChange: (e) {}),
+      content: customTextField(
+          controller: changeNameController,
+          size: MediaQuery.of(context).size,
+          onChange: (e) {}),
       actions: [
         ElevatedButton(
-          child: const Text('DONE'),
-          style: bs(),
-          onPressed: () async  {
-            if (changeNameController.text.trim() != "" && changeNameController.text.trim().isNotEmpty) {
-              int index = blueList.indexWhere((e) => e.id == deviceId);
-              await changeNameOfModel(deviceId, changeNameController.text); // Setting element in local db that it is removed now
-              setState(() {
-                blueList.elementAt(index).name = changeNameController.text;
-              });
-            }
+            child: const Text('DONE'),
+            style: bs(),
+            onPressed: () async {
+              if (changeNameController.text.trim() != "" &&
+                  changeNameController.text.trim().isNotEmpty) {
+                int index = blueList.indexWhere((e) => e.id == deviceId);
+                await changeNameOfModel(
+                    deviceId,
+                    changeNameController
+                        .text); // Setting element in local db that it is removed now
+                setState(() {
+                  blueList.elementAt(index).name = changeNameController.text;
+                });
+              }
 
-            Navigator.pop(context);
-          }
-        )
+              Navigator.pop(context);
+            })
       ],
     );
 
@@ -163,71 +169,86 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
                   builder: (c, snapshot) {
                     if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                       return Column(
-                        children: snapshot.data!
-                            .map((d) {
-                              // Checking if the object is available in list if not available then add this into list
-                              // and then also set into local DB
-                              bool check = blueList.any((e) => e.id == d.id.id);
-                          BlueModel model = BlueModel(name: d.name, id: d.id.id, isRemoved: false);
-                          if(check) {
-                            model = blueList.where((e) => e.id == d.id.id).single;
+                        children: snapshot.data!.map((d) {
+                          // Checking if the object is available in list if not available then add this into list
+                          // and then also set into local DB
+                          bool check = blueList.any((e) => e.id == d.id.id);
+                          BlueModel model = BlueModel(
+                              name: d.name, id: d.id.id, isRemoved: false);
+                          if (check) {
+                            model =
+                                blueList.where((e) => e.id == d.id.id).single;
                           } else {
                             setBlueModelData(model);
                             blueList.add(model);
                           }
 
-                          Widget widget =  model.isRemoved! ? Container() :  ListTile(
-                                title: Text(model.name!),
-                                subtitle: Text(d.id.toString()),
-                                trailing: StreamBuilder<BluetoothDeviceState>(
-                                  stream: d.state,
-                                  initialData:
-                                  BluetoothDeviceState.disconnected,
-                                  builder: (c, snapshot) {
-                                    if (snapshot.data ==
-                                        BluetoothDeviceState.connected) {
-                                      return ElevatedButton(
-                                        child: const Text('OPEN'),
-                                        onPressed: () => Navigator.of(context)
-                                            .push(MaterialPageRoute(
-                                            builder: (context) =>
-                                                DeviceScreen(device: d, deviceName: model.name,))),
-                                      );
-                                    }
-                                    return SizedBox(
-                                      width: size.width / 3,
-                                      child: Row(children: <Widget>[
-                                        IconButton(
-                                            onPressed: () async {
-                                              await addFirstIfNotAvailable(model);
-                                              editNameDialog(d.id.id, model.name!);
-                                            },
-                                            icon: const Icon(Icons.edit, color: Colors.blue)),
-                                        IconButton(
-                                            onPressed: () async {
-                                              await addFirstIfNotAvailable(model);
-                                              int index = blueList.indexWhere((e) => e.id == d.id.id);
-                                              await setIsRemoved(d.id.id); // Setting element in local db that it is removed now
-                                              setState(() {
-                                                blueList.elementAt(index).isRemoved = true;
-                                              });
-                                            },
-                                            icon: const Icon(Icons.delete, color: Colors.red)),
-                                      ]),
-                                    ); // snapshot.data.toString()
-                                  },
-                                ),
-                              );
+                          Widget widget = model.isRemoved!
+                              ? Container()
+                              : ListTile(
+                                  title: Text(model.name!),
+                                  subtitle: const Text(""), // d.id.toString()
+                                  trailing: StreamBuilder<BluetoothDeviceState>(
+                                    stream: d.state,
+                                    initialData:
+                                        BluetoothDeviceState.disconnected,
+                                    builder: (c, snapshot) {
+                                      if (snapshot.data ==
+                                          BluetoothDeviceState.connected) {
+                                        return ElevatedButton(
+                                          child: const Text('OPEN'),
+                                          onPressed: () => Navigator.of(context)
+                                              .push(MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      DeviceScreen(
+                                                        device: d,
+                                                        deviceName: model.name,
+                                                      ))),
+                                        );
+                                      }
+                                      return SizedBox(
+                                        width: size.width / 3,
+                                        child: Row(children: <Widget>[
+                                          IconButton(
+                                              onPressed: () async {
+                                                await addFirstIfNotAvailable(
+                                                    model);
+                                                editNameDialog(
+                                                    d.id.id, model.name!);
+                                              },
+                                              icon: const Icon(Icons.edit,
+                                                  color: Colors.blue)),
+                                          IconButton(
+                                              onPressed: () async {
+                                                await addFirstIfNotAvailable(
+                                                    model);
+                                                int index = blueList.indexWhere(
+                                                    (e) => e.id == d.id.id);
+                                                await setIsRemoved(d.id
+                                                    .id); // Setting element in local db that it is removed now
+                                                setState(() {
+                                                  blueList
+                                                      .elementAt(index)
+                                                      .isRemoved = true;
+                                                });
+                                              },
+                                              icon: const Icon(Icons.delete,
+                                                  color: Colors.red)),
+                                        ]),
+                                      ); // snapshot.data.toString()
+                                    },
+                                  ),
+                                );
 
-
-                              if (includeAPIDATA) {
-                                // Checking if the element is removed now no need to show that element
-                                return data.contains(model.id) ? widget : Container();
-                              } else {
-                                return widget;
-                              }
-                        })
-                            .toList(),
+                          if (includeAPIDATA) {
+                            // Checking if the element is removed now no need to show that element
+                            return data.contains(model.id)
+                                ? widget
+                                : Container();
+                          } else {
+                            return widget;
+                          }
+                        }).toList(),
                       );
                     }
                     return const Center(
@@ -242,51 +263,64 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
                       if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                         return Column(
                           children: snapshot.data!.map(
-                            (r)  {
+                            (r) {
                               // Checking if the object is available in list if not available then add this into list
                               // and then also set into local DB
-                              bool check = blueList.any((e) => e.id == r.device.id.id);
-                              BlueModel model = BlueModel(name: r.device.name, id: r.device.id.id, isRemoved: false);
-                              if(check) {
-                                model = blueList.where((e) => e.id == r.device.id.id).single;
+                              bool check =
+                                  blueList.any((e) => e.id == r.device.id.id);
+                              BlueModel model = BlueModel(
+                                  name: r.device.name,
+                                  id: r.device.id.id,
+                                  isRemoved: false);
+                              if (check) {
+                                model = blueList
+                                    .where((e) => e.id == r.device.id.id)
+                                    .single;
                               } else {
                                 setBlueModelData(model);
                                 blueList.add(model);
                               }
-                              Widget widget = model.isRemoved! ? Container() :  ScanResultTile(
-                                deviceName: model.name!,
-                                result: r,
-                                edit: () async {
-                                  await addFirstIfNotAvailable(model);
-                                  editNameDialog(r.device.id.id, model.name!);
-                                },
-                                remove: () async {
-                                  await addFirstIfNotAvailable(model);
-                                  int index = blueList.indexWhere((e) => e.id == r.device.id.id);
-                                  await setIsRemoved(r.device.id.id); // Setting element in local db that it is removed now
-                                  setState(() {
-                                    blueList.elementAt(index).isRemoved = true;
-                                  });
-
-                                },
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (context) {
-                                      r.device.connect();
-                                      return DeviceScreen(device: r.device, deviceName: model.name);
-                                    }),
-                                  );
-                                },
-                              );
+                              Widget widget = model.isRemoved!
+                                  ? Container()
+                                  : ScanResultTile(
+                                      deviceName: model.name!,
+                                      result: r,
+                                      edit: () async {
+                                        await addFirstIfNotAvailable(model);
+                                        editNameDialog(
+                                            r.device.id.id, model.name!);
+                                      },
+                                      remove: () async {
+                                        await addFirstIfNotAvailable(model);
+                                        int index = blueList.indexWhere(
+                                            (e) => e.id == r.device.id.id);
+                                        await setIsRemoved(r.device.id
+                                            .id); // Setting element in local db that it is removed now
+                                        setState(() {
+                                          blueList.elementAt(index).isRemoved =
+                                              true;
+                                        });
+                                      },
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) {
+                                            r.device.connect();
+                                            return DeviceScreen(
+                                                device: r.device,
+                                                deviceName: model.name);
+                                          }),
+                                        );
+                                      },
+                                    );
 
                               if (includeAPIDATA) {
                                 // Checking if the element is removed now no need to show that element
-                                return data.contains(model.id) ? widget : Container();
+                                return data.contains(model.id)
+                                    ? widget
+                                    : Container();
                               } else {
                                 return widget;
                               }
-
-
                             },
                           ).toList(),
                         );
@@ -327,7 +361,7 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
     return Drawer(
       child: Container(
         margin:
-        EdgeInsets.fromLTRB(0, MediaQuery.of(context).padding.top, 0, 0),
+            EdgeInsets.fromLTRB(0, MediaQuery.of(context).padding.top, 0, 0),
         child: Column(
           children: [
             Padding(
@@ -372,13 +406,14 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
                       blueList.map((e) => e.isRemoved = false).toList();
                       await setAllDevicesVisible();
                       setState(() {});
-                      Fluttertoast.showToast(
-                          msg: "ALL DEVICES VISIBLE");
+                      Fluttertoast.showToast(msg: "ALL DEVICES VISIBLE");
                     },
                   ),
                   const SizedBox(height: 15),
                   ElevatedButton(
-                    child: Text(includeAPIDATA ? "SHOW ALL ID's" : "SHOW API ID's ONLY" ),
+                    child: Text(includeAPIDATA
+                        ? "SHOW ALL ID's"
+                        : "SHOW API ID's ONLY"),
                     style: bs(),
                     onPressed: () async {
                       await setAPIBool();
@@ -386,7 +421,9 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
                         includeAPIDATA = !includeAPIDATA;
                       });
                       Fluttertoast.showToast(
-                          msg: includeAPIDATA ? "AVAILABLE API ID's ONLY" : "AVAILABLE ALL ID's");
+                          msg: includeAPIDATA
+                              ? "AVAILABLE API ID's ONLY"
+                              : "AVAILABLE ALL ID's");
                     },
                   ),
                   const SizedBox(height: 25),
@@ -409,7 +446,8 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
 }
 
 class DeviceScreen extends StatelessWidget {
-  const DeviceScreen({Key? key, required this.device, this.deviceName}) : super(key: key);
+  const DeviceScreen({Key? key, required this.device, this.deviceName})
+      : super(key: key);
 
   final BluetoothDevice device;
   final String? deviceName;
