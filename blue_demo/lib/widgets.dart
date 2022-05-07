@@ -109,7 +109,6 @@ class ScanResultTile extends StatelessWidget {
           children: [
             IconButton(
                 onPressed: () {
-                  onTap!();
                   if (result.advertisementData.connectable) {
                     onTap!();
                   } else {
@@ -130,10 +129,10 @@ class ScanResultTile extends StatelessWidget {
       ),
       expandedAlignment: Alignment.bottomLeft,
       children: <Widget>[
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child:  LiquidLinearProgressIndicatorPage(value: 0.35),
-      ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: LiquidLinearProgressIndicatorPage(value: 0.35),
+        ),
 
         // _buildAdvRow(context, 'Tx Power Level',
         //     '${result.advertisementData.txPowerLevel ?? 'N/A'}'),
