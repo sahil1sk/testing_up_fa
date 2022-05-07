@@ -1,8 +1,10 @@
+import 'package:blue_demo/BatteryLevel.dart';
 import 'package:blue_demo/utils/helper.dart';
 import 'package:blue_demo/models/BlueModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:liquid_progress_indicator_ns/liquid_progress_indicator.dart';
 
 class ScanResultTile extends StatelessWidget {
   const ScanResultTile(
@@ -107,6 +109,7 @@ class ScanResultTile extends StatelessWidget {
           children: [
             IconButton(
                 onPressed: () {
+                  onTap!();
                   if (result.advertisementData.connectable) {
                     onTap!();
                   } else {
@@ -125,21 +128,15 @@ class ScanResultTile extends StatelessWidget {
           ],
         ),
       ),
+      expandedAlignment: Alignment.bottomLeft,
       children: <Widget>[
-        _buildAdvRow(
-            context, 'Complete Local Name', result.advertisementData.localName),
-        _buildAdvRow(context, 'Tx Power Level',
-            '${result.advertisementData.txPowerLevel ?? 'N/A'}'),
-        _buildAdvRow(context, 'Manufacturer Data',
-            getNiceManufacturerData(result.advertisementData.manufacturerData)),
-        _buildAdvRow(
-            context,
-            'Service UUIDs',
-            (result.advertisementData.serviceUuids.isNotEmpty)
-                ? result.advertisementData.serviceUuids.join(', ').toUpperCase()
-                : 'N/A'),
-        _buildAdvRow(context, 'Service Data',
-            getNiceServiceData(result.advertisementData.serviceData)),
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child:  LiquidLinearProgressIndicatorPage(value: 0.35),
+      ),
+
+        // _buildAdvRow(context, 'Tx Power Level',
+        //     '${result.advertisementData.txPowerLevel ?? 'N/A'}'),
       ],
     );
   }

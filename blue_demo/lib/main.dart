@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+
 import 'widgets.dart';
 
 void main() {
@@ -28,10 +29,46 @@ class FlutterBlueApp extends StatelessWidget {
           builder: (c, snapshot) {
             final state = snapshot.data;
             if (state == BluetoothState.on) {
-              return FindDevicesScreen();
+              return const LogoScreen();
             }
             return BluetoothOffScreen(state: state);
           }),
+    );
+  }
+}
+
+ButtonStyle bs() => ElevatedButton.styleFrom(
+      primary: Colors.blue,
+      onPrimary: Colors.white,
+      minimumSize: const Size.fromHeight(50), // SETTING THE FULL SIZED BUTTON
+    );
+
+class LogoScreen extends StatelessWidget {
+  const LogoScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Image.asset("assets/logo.png"),
+            ElevatedButton(
+              child: const Text("Add Device"),
+              style: ElevatedButton.styleFrom(
+                primary: const Color.fromARGB(237, 5, 12, 83),
+                onPrimary: Colors.white,
+              ),
+              onPressed: () {
+                FlutterBluePlus.instance.startScan(timeout: const Duration(seconds: 4));
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => FindDevicesScreen(),
+                  ),
+                );
+              },
+            )
+          ]),
     );
   }
 }
@@ -86,21 +123,22 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
   List data = [];
   bool isPairedDevices = false;
   bool includeAPIDATA = true;
+  bool loading = true;
   TextEditingController changeNameController = TextEditingController();
-
-  ButtonStyle bs() => ElevatedButton.styleFrom(
-        primary: Colors.blue,
-        onPrimary: Colors.white,
-        minimumSize: const Size.fromHeight(50), // SETTING THE FULL SIZED BUTTON
-      );
 
   @override
   void initState() {
     //Setting blue list from local data
     Future.delayed(const Duration(microseconds: 1), () async {
+      print("getting list data");
       blueList = await getBlueList();
-      data = await loadData();
+      print("Blue list $blueList");
+      // data = await loadData();
+      // print("data $data");
       includeAPIDATA = await getAPIResponseBool();
+      print("response is here");
+      print(includeAPIDATA);
+      loading = false;
       setState(() {});
     });
     super.initState();
@@ -154,7 +192,7 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
         title: const Text('Bluetooth Demo'),
         centerTitle: true,
       ),
-      body: RefreshIndicator(
+      body: loading ? const Center(child: CircularProgressIndicator(),) : RefreshIndicator(
         onRefresh: () => FlutterBluePlus.instance
             .startScan(timeout: const Duration(seconds: 4)),
         child: SingleChildScrollView(
@@ -562,7 +600,7 @@ class DeviceScreen extends StatelessWidget {
                 ),
                 title: Text(
                     'Device is ${snapshot.data.toString().split('.')[1]}.'),
-                subtitle: Text('${device.id}'),
+                // subtitle: Text('${device.id}'),
                 trailing: StreamBuilder<bool>(
                   stream: device.isDiscoveringServices,
                   initialData: false,

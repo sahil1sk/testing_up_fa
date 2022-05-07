@@ -25,7 +25,9 @@ Future<void> setString(String str) async {
 
 //If we have string then convert it into list and return it otherwise return empty string
 Future<List<BlueModel>> getBlueList() async {
-  return blueModelFromJson(await getString());
+  // await setString(blueModelToJson([]));
+  List<BlueModel> data = blueModelFromJson(await getString());
+  return data;
 }
 
 //In this we are checking that if we have list then add one more object to it and save it
@@ -60,14 +62,14 @@ Future<void> changeNameOfModel(String id, String name) async {
   List<BlueModel> list = blueModelFromJson(await getString());
   int index = list.indexWhere((e) => e.id == id);
   list[index].name = name;
-  setString(blueModelToJson(list));
+  await setString(blueModelToJson(list));
 }
 
 // Setting all devices visible, this function is triggered from the drawer
 Future<void> setAllDevicesVisible() async {
   List<BlueModel> list = blueModelFromJson(await getString());
   list.map((e) => e.isRemoved = false).toList();
-  setString(blueModelToJson([]));
+  await setString(blueModelToJson([]));
 }
 
 // GET LIST OF ID's WHICH YOU WANT TO SHOW ONLY
@@ -92,6 +94,9 @@ Future<bool> getAPIResponseBool() async {
 
 Future<void> setAPIBool() async {
   final prefs = await getSharedInstance();
-  final data = await getAPIResponseBool();
-  await prefs.setBool(showAPIKey, !data);
+  bool data = await getAPIResponseBool();
+  data = !data;
+  print("here is the data");
+  print(data);
+  await prefs.setBool(showAPIKey, data);
 }
