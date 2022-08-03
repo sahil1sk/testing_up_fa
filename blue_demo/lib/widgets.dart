@@ -132,6 +132,7 @@ class ScanResultTile extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: LiquidLinearProgressIndicatorPage(value: 0.35),
+          // child: LiquidLinearProgressIndicatorPage(value: (result!.advertisementData!.txPowerLevel! / 100.00) ?? 0.35),
         ),
 
         // _buildAdvRow(context, 'Tx Power Level',
